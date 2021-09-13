@@ -1,0 +1,119 @@
+ASSIGNMENT
+----------------------------------------------------------------------------------------------------------------------
+INSERT using subqueries
+------------------------------------------------------------------------------------------------------------------------
+
+mysql> select * from employee;
++-------+---------+------------+------------+-----------+
+| empid | empname | empaddress | empdob     | empsalary |
++-------+---------+------------+------------+-----------+
+|    12 | anu     | ngl        | 1999-07-26 |     20000 |
+|    22 | abi     | cbe        | 1982-06-14 |     50000 |
+|    42 | ramya   | chn        | 1985-08-12 |     70000 |
+|    72 | rupa    | mdu        | 1992-09-25 |     80000 |
+|   102 | banu    | bgl        | 1975-01-16 |     40000 |
++-------+---------+------------+------------+-----------+
+5 rows in set (0.05 sec)
+
+mysql> select * from employee1;
++-------+---------+------------+------------+-----------+
+| empID | empname | empaddress | empdob     | empsalary |
++-------+---------+------------+------------+-----------+
+|    42 | ramya   | chn        | 1985-08-12 |     70000 |
+|    72 | rupa    | mdu        | 1992-09-25 |     80000 |
++-------+---------+------------+------------+-----------+
+2 rows in set (0.02 sec)
+
+mysql> drop table employee1;
+Query OK, 0 rows affected (2.59 sec)
+
+mysql> create table employee1(
+    -> empid int,
+    -> empname varchar(30),
+    -> empaddress varchar(30),
+    -> empdob date,
+    -> empsalary int
+    -> );
+Query OK, 0 rows affected (1.85 sec)
+
+mysql> insert into employee1 (select * from employee where empid >30);
+Query OK, 3 rows affected (0.29 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from employee1;
++-------+---------+------------+------------+-----------+
+| empid | empname | empaddress | empdob     | empsalary |
++-------+---------+------------+------------+-----------+
+|    42 | ramya   | chn        | 1985-08-12 |     70000 |
+|    72 | rupa    | mdu        | 1992-09-25 |     80000 |
+|   102 | banu    | bgl        | 1975-01-16 |     40000 |
++-------+---------+------------+------------+-----------+
+
+mysql> insert into employee1 (select * from employee where empsalary < 60000 group by empaddress);
+Query OK, 4 rows affected (0.36 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select * from employee1;
++-------+---------+------------+------------+-----------+
+| empid | empname | empaddress | empdob     | empsalary |
++-------+---------+------------+------------+-----------+
+|    12 | anu     | ngl        | 1999-07-26 |     20000 |
+|    22 | abi     | cbe        | 1982-06-14 |     50000 |
+|   102 | banu    | bgl        | 1975-01-16 |     40000 |
+|    75 | mathu   | mdu        | 2014-04-21 |     25000 |
++-------+---------+------------+------------+-----------+
+-----------------------------------------------------------------------------------------------------------------------------
+delete statement
+------------------------------------------------------------------------------------------------------------------------------
+mysql> delete from employee where empsalary in(select empsalary from employee1 where empsalary > 25000);
+Query OK, 2 rows affected (0.20 sec)
+
+mysql> select * from employee;
++-------+---------+------------+------------+-----------+
+| empid | empname | empaddress | empdob     | empsalary |
++-------+---------+------------+------------+-----------+
+|    12 | anu     | ngl        | 1999-07-26 |     20000 |
+|    42 | ramya   | chn        | 1985-08-12 |     70000 |
+|    72 | rupa    | mdu        | 1992-09-25 |     80000 |
+|    75 | mathu   | mdu        | 2014-04-21 |     25000 |
+|   105 | geetha  | mdu        | 2017-03-22 |     55000 |
++-------+---------+------------+------------+-----------+
+
+mysql> delete from employee where empsalary in(select min(empsalary) from employee1);
+Query OK, 1 row affected (0.61 sec)
+
+mysql> select * from employee;
++-------+---------+------------+------------+-----------+
+| empid | empname | empaddress | empdob     | empsalary |
++-------+---------+------------+------------+-----------+
+|    42 | ramya   | chn        | 1985-08-12 |     70000 |
+|    72 | rupa    | mdu        | 1992-09-25 |     80000 |
+|    75 | mathu   | mdu        | 2014-04-21 |     25000 |
+|   105 | geetha  | mdu        | 2017-03-22 |     55000 |
++-------+---------+------------+------------+-----------+
+-----------------------------------------------------------------------------------------------------------------------
+UPDATE statement
+----------------------------------------------------------------------------------------------------------------------
+mysql> update employee set empsalary = empsalary+20000 where empdob in(select empdob from employee1  where empdob >'2014-01-01');
+Query OK, 1 row affected (0.26 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from employee;
++-------+---------+------------+------------+-----------+
+| empid | empname | empaddress | empdob     | empsalary |
++-------+---------+------------+------------+-----------+
+|    42 | ramya   | chn        | 1985-08-12 |     70000 |
+|    72 | rupa    | mdu        | 1992-09-25 |     80000 |
+|    75 | mathu   | mdu        | 2014-04-21 |     45000 |
+|   105 | geetha  | mdu        | 2017-03-22 |     55000 |
++-------+---------+------------+------------+-----------+
+----------------------------------------------------------------------------------------------------------------
+Select statement
+-----------------------------------------------------------------------------------------------------------------
+
+mysql> select * from employee where empid in(select empid from employee1);
++-------+---------+------------+------------+-----------+
+| empid | empname | empaddress | empdob     | empsalary |
++-------+---------+------------+------------+-----------+
+|    75 | mathu   | mdu        | 2014-04-21 |     45000 |
++-------+---------+------------+------------+-----------+
